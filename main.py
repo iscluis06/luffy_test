@@ -7,10 +7,12 @@ import sys
 
 import pygame
 
+from controls import Controls
 from luffy import Luffy
 
 
 def print_hi(name):
+    FPS = 30
     pygame.init()
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode((800, 600))
@@ -19,15 +21,17 @@ def print_hi(name):
 
     Luffy.containers = player_group
 
-    Luffy()
-
+    controls = Controls(Luffy())
 
     while True:
+        for event in pygame.event.get():
+            controls.manage_keyboard_events(event)
+
         screen.fill((0, 0, 0))
-        player_group.update()
+        player_group.update(time=clock.get_time())
         player_group.draw(screen)
         pygame.display.update()
-        clock.tick(40)
+        clock.tick(FPS)
 
 
 # Press the green button in the gutter to run the script.
