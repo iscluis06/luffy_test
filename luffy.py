@@ -22,7 +22,7 @@ class Luffy(Sprite):
         {"x": 433, "y": 8, "width": 26, "height": 46},
         {"x": 474, "y": 6, "width": 33, "height": 48},
     ]
-    ATTACKING = [
+    PUNCH = [
         {"x": 11, "y": 2049, "width": 31, "height": 41},
         {"x": 59, "y": 2050, "width": 31, "height": 40},
         {"x": 110, "y": 2042, "width": 32, "height": 47},
@@ -51,7 +51,8 @@ class Luffy(Sprite):
     def __init__(self):
         Sprite.__init__(self, self.containers)
         self.images = pygame.image.load(resource_path("Luffy.gif")).convert_alpha()
-        self.current_animation = self.ATTACKING
+        self.current_animation = self.STANDING
+        self.attacking = False
         self.x, self.y = 0, 0
         self.left = False
         self.frame = 0
@@ -66,6 +67,9 @@ class Luffy(Sprite):
         if(self.elapsed_time//images_fps>0):
             self.elapsed_time = 0
             self.frame = self.frame + 1 if self.frame < len(self.current_animation) - 1 else 0
+            if self.frame == 0 and self.attacking:
+                self.attacking = False
+                self.current_animation = self.STANDING
         self.x += self.speed
 
 
@@ -98,4 +102,11 @@ class Luffy(Sprite):
         self.frame = 0
         self.current_animation = self.STANDING
         self.speed = 0
+
+    def punch(self):
+        if not self.attacking:
+            self.frame=0
+            self.current_animation = self.PUNCH
+            self.attacking = True
+            self.speed = 0
 
