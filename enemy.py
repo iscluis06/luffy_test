@@ -1,3 +1,7 @@
+from typing import Any
+
+import pygame
+
 from utilities import resource_path
 from pygame.sprite import Sprite
 class SwordMan(Sprite):
@@ -22,7 +26,7 @@ class SwordMan(Sprite):
         {"x": 64, "y": 195, "width": 48, "height": 42},
     ]
 
-    DEFETEAD = [
+    DEFEATED = [
         {"x": 16, "y": 308, "width": 38, "height": 57},
         {"x": 75, "y": 308, "width": 38, "height": 57},
         {"x": 125, "y": 311, "width": 41, "height": 54},
@@ -39,3 +43,45 @@ class SwordMan(Sprite):
 
     def __init__(self):
         Sprite.__init__(self, self.containers)
+        self.images = pygame.image.load(resource_path("Marine Swordsman.gif")).convert_alpha()
+        self.current_animation = self.STANDING
+        self.x, self.y = 120, 0
+        self.frame = 0
+        self.attacking = False
+        self.right = False
+        self.elapsed_time = 0
+        self.get_animation()
+        self.speed = 0
+        self.is_defeated = False
+
+
+    def update(self, *args: Any, **kwargs: Any) -> None:
+        self.get_animation()
+        images_fps = 1000/len(self.current_animation)
+        self.elapsed_time += kwargs["time"]
+        if(self.elapsed_time//images_fps>0):
+            self.elapsed_time = 0
+            self.frame = self.frame + 1 if self.frame < len(self.current_animation) - 1 else 0
+            if self.frame == 0 and self.attacking:
+                self.attacking = False
+                self.current_animation = self.STANDING
+            if self.frame == 0 and self.is_defeated:
+                self.remove(self.containers)
+        self.x += self.speed
+
+    def get_animation(self):
+        current_sprite = self.current_animation[self.frame]
+        self.image = pygame.Surface((current_sprite["width"], current_sprite["height"]))
+        self.image.set_colorkey((0, 0, 0))
+        self.image.blit(self.images, (0, 0), (current_sprite["x"],
+                        current_sprite["y"],
+                        current_sprite["width"],
+                        current_sprite["height"]))
+        self.image = self.image if self.right == False else pygame.transform.flip(self.image, True, False)
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+    def defeated(self):
+        self.current_animation = self.DEFEATED
+        self.is_defeated = True

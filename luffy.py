@@ -57,6 +57,7 @@ class Luffy(Sprite):
         self.left = False
         self.frame = 0
         self.elapsed_time = 0
+        self.fixed_width = 0
         self.get_animation()
         self.speed = 0
 
@@ -71,6 +72,7 @@ class Luffy(Sprite):
                 self.attacking = False
                 self.current_animation = self.STANDING
         self.x += self.speed
+        print(f"current x: {self.x}")
 
 
     def get_animation(self):
@@ -83,16 +85,21 @@ class Luffy(Sprite):
                         current_sprite["height"]))
         self.image = self.image if self.left == False else pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect()
-        self.rect.x = self.x
+        if self.left and self.attacking:
+            self.rect.x = self.x + self.fixed_width - self.current_animation[self.frame]["width"]
+        else:
+            self.rect.x = self.x
         self.rect.y = self.y
 
     def running_right(self):
+        self.fixed_width = 0
         self.frame = 0
         self.left = False
         self.current_animation = self.RUNNING_RIGHT
         self.speed = 6
 
     def running_left(self):
+        self.fixed_width = 0
         self.frame = 0
         self.left = True
         self.current_animation = self.RUNNING_RIGHT
@@ -109,4 +116,5 @@ class Luffy(Sprite):
             self.current_animation = self.PUNCH
             self.attacking = True
             self.speed = 0
-
+            if self.left:
+                self.fixed_width = self.PUNCH[0]["width"]
