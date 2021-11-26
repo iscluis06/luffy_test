@@ -37,14 +37,14 @@ class Luffy(Sprite):
         {"x": 529, "y": 2040, "width": 39, "height": 49},
         {"x": 579, "y": 2040, "width": 39, "height": 49},
         {"x": 641, "y": 2040, "width": 41, "height": 50},
-        {"x": 695, "y": 2050, "width": 53, "height": 40},
-        {"x": 759, "y": 2050, "width": 61, "height": 40},
-        {"x": 830, "y": 2050, "width": 69, "height": 40},
-        {"x": 23, "y": 2107, "width": 85, "height": 40},
-        {"x": 122, "y": 2107, "width": 93, "height": 40},
-        {"x": 226, "y": 2107, "width": 109, "height": 40},
-        {"x": 346, "y": 2108, "width": 117, "height": 39},
-        {"x": 474, "y": 2105, "width": 30, "height": 43},
+        {"x": 695, "y": 2050, "width": 53, "height": 40, "attacking": True},
+        {"x": 759, "y": 2050, "width": 61, "height": 40, "attacking": True},
+        {"x": 830, "y": 2050, "width": 69, "height": 40, "attacking": True},
+        {"x": 23, "y": 2107, "width": 85, "height": 40, "attacking": True},
+        {"x": 122, "y": 2107, "width": 93, "height": 40, "attacking": True},
+        {"x": 226, "y": 2107, "width": 109, "height": 40, "attacking": True},
+        {"x": 346, "y": 2108, "width": 117, "height": 39, "attacking": True},
+        {"x": 474, "y": 2105, "width": 30, "height": 43, "attacking": True},
         {"x": 518, "y": 2105, "width": 30, "height": 43},
     ]
 
@@ -92,18 +92,20 @@ class Luffy(Sprite):
         self.rect.y = self.y
 
     def running_right(self):
+        self.attacking = False
         self.fixed_width = 0
         self.frame = 0
         self.left = False
         self.current_animation = self.RUNNING_RIGHT
-        self.speed = 6
+        self.speed = 8
 
     def running_left(self):
+        self.attacking = False
         self.fixed_width = 0
         self.frame = 0
         self.left = True
         self.current_animation = self.RUNNING_RIGHT
-        self.speed = -6
+        self.speed = -8
 
     def standing(self):
         self.frame = 0
@@ -112,9 +114,13 @@ class Luffy(Sprite):
 
     def punch(self):
         if not self.attacking:
+            print("=========================PUNCHING========================")
             self.frame=0
             self.current_animation = self.PUNCH
             self.attacking = True
             self.speed = 0
             if self.left:
                 self.fixed_width = self.PUNCH[0]["width"]
+
+    def die(self):
+        self.remove(self.containers)

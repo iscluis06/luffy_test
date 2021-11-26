@@ -4,6 +4,8 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import os
 import sys
+import threading
+import time
 
 import pygame
 
@@ -11,6 +13,9 @@ from controls import Controls
 from enemy import SwordMan
 from luffy import Luffy
 
+def create_async_enemy():
+    time.sleep(1)
+    SwordMan()
 
 def print_hi(name):
     pause = False
@@ -25,10 +30,15 @@ def print_hi(name):
     Luffy.containers = player_group
     SwordMan.containers = enemy_group
 
-    controls = Controls(Luffy())
+    player = Luffy()
+    controls = Controls(player)
     SwordMan()
 
-    while True:
+    while player.alive():
+        if len(enemy_group) == 0:
+            for i in range(3):
+                thread = threading.Thread(target=create_async_enemy())
+                thread.run()
         for event in pygame.event.get():
             controls.manage_keyboard_events(event)
 
@@ -38,13 +48,16 @@ def print_hi(name):
 
         if not pause:
             player_group.update(time=clock.get_time())
-            enemy_group.update(time=clock.get_time())
+            enemy_group.update(time=clock.get_time(), player_x=player.x, player_y=player.y)
 
         #Comprobar colisiones
         collisions = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
         for key in dict.keys(collisions):
             swordman: SwordMan = collisions[key][0]
-            swordman.defeated()
+            if "attacking" in player.current_animation[player.frame]:
+                swordman.defeated()
+            if "attacking" in swordman.current_animation[swordman.frame]:
+                player.die()
 
         pygame.display.update()
         clock.tick(FPS)
