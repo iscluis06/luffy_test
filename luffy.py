@@ -53,7 +53,7 @@ class Luffy(Sprite):
         self.images = pygame.image.load(resource_path("Luffy.gif")).convert_alpha()
         self.current_animation = self.STANDING
         self.attacking = False
-        self.x, self.y = 0, 0
+        self.x, self.y = 0, 10
         self.left = False
         self.frame = 0
         self.elapsed_time = 0

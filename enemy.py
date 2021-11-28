@@ -21,7 +21,7 @@ class SwordMan(Sprite):
     ATTACKING = [
         {"x": 20, "y": 136, "width": 43, "height": 49},
         {"x": 71, "y": 132, "width": 45, "height": 52},
-        {"x": 123, "y": 127, "width": 60, "height": 57, "attacking": True},
+        {"x": 123, "y": 127, "width": 60, "height": 57,},
         {"x": 192, "y": 141, "width": 55, "height": 44, "attacking": True},
         {"x": 4, "y": 198, "width": 51, "height": 39, "attacking": True},
         {"x": 64, "y": 195, "width": 48, "height": 42},
@@ -40,17 +40,17 @@ class SwordMan(Sprite):
     ]
 
     containers = None
-    images = []
 
     def __init__(self):
         Sprite.__init__(self, self.containers)
+        self.images = pygame.image.load(resource_path("Marine Swordsman.gif")).convert_alpha()
+        self.image = pygame.Surface((0,0))
         self.is_defeated = False
         self.player_x = -1
         self.player_y = -1
-        self.images = pygame.image.load(resource_path("Marine Swordsman.gif")).convert_alpha()
         self.current_animation = self.STANDING
-        appear = [400, 800]
-        self.x, self.y = random.choice(appear), 0
+        appear = random.randrange(800,1000,40)
+        self.x, self.y = appear, 0
         self.frame = 0
         self.attacking = False
         self.right = False
@@ -108,7 +108,7 @@ class SwordMan(Sprite):
         self.speed = 0
 
     def move_close_to_player(self):
-        attacking_space = 34 if not self.right else -34
+        attacking_space = 33 if not self.right else -33
         print(f"enemy x: {self.x}")
         print(f"attacking enemy: {attacking_space}")
         self.right = self.x - attacking_space + self.rect.x < self.player_x

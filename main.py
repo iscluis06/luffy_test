@@ -2,20 +2,16 @@
 
 # Press Mayús+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-import os
-import sys
+import random
 import threading
 import time
 
 import pygame
+from pygame.sprite import Group
 
 from controls import Controls
 from enemy import SwordMan
 from luffy import Luffy
-
-def create_async_enemy():
-    time.sleep(1)
-    SwordMan()
 
 def print_hi(name):
     pause = False
@@ -35,10 +31,6 @@ def print_hi(name):
     SwordMan()
 
     while player.alive():
-        if len(enemy_group) == 0:
-            for i in range(3):
-                thread = threading.Thread(target=create_async_enemy())
-                thread.run()
         for event in pygame.event.get():
             controls.manage_keyboard_events(event)
 
@@ -46,11 +38,7 @@ def print_hi(name):
         player_group.draw(screen)
         enemy_group.draw(screen)
 
-        if not pause:
-            player_group.update(time=clock.get_time())
-            enemy_group.update(time=clock.get_time(), player_x=player.x, player_y=player.y)
-
-        #Comprobar colisiones
+        # Comprobar colisiones
         collisions = pygame.sprite.groupcollide(player_group, enemy_group, False, False)
         for key in dict.keys(collisions):
             swordman: SwordMan = collisions[key][0]
@@ -58,6 +46,18 @@ def print_hi(name):
                 swordman.defeated()
             if "attacking" in swordman.current_animation[swordman.frame]:
                 player.die()
+
+        if not pause:
+            try:
+                player_group.update(time=clock.get_time())
+                enemy_group.update(time=clock.get_time(), player_x=player.x, player_y=player.y)
+            except Exception:
+                print(f"exception: {Exception}")
+
+        if len(enemy_group) == 0:
+            limit = 3
+            for i in range(limit):
+                SwordMan()
 
         pygame.display.update()
         clock.tick(FPS)
