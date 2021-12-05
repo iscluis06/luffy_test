@@ -41,16 +41,17 @@ class SwordMan(Sprite):
 
     containers = None
 
-    def __init__(self):
+    def __init__(self, screen_height):
         Sprite.__init__(self, self.containers)
         self.images = pygame.image.load(resource_path("Marine Swordsman.gif")).convert_alpha()
         self.image = pygame.Surface((0,0))
         self.is_defeated = False
         self.player_x = -1
         self.player_y = -1
+        self.player_width = 0
         self.current_animation = self.STANDING
         appear = random.randrange(800,1000,40)
-        self.x, self.y = appear, 0
+        self.x, self.y = appear, screen_height
         self.frame = 0
         self.attacking = False
         self.right = False
@@ -62,18 +63,19 @@ class SwordMan(Sprite):
     def update(self, *args: Any, **kwargs: Any) -> None:
         self.get_animation()
         if not self.is_defeated:
-            self.update_player_pos(kwargs["player_x"], kwargs["player_y"])
+            self.update_player_pos(kwargs["player_x"], kwargs["player_y"], kwargs["player_width"])
+            self.should_attack_player()
             self.move_close_to_player()
-        images_fps = 1000/len(self.current_animation)
-        self.elapsed_time += kwargs["time"]
-        if(self.elapsed_time//images_fps>0):
-            self.elapsed_time = 0
-            self.frame = self.frame + 1 if self.frame < len(self.current_animation) - 1 else 0
-            if self.frame == 0 and self.attacking:
-                self.attacking = False
-                self.current_animation = self.STANDING
-            if self.frame == 0 and self.is_defeated:
-                self.remove(self.containers)
+        #images_fps = 1000/len(self.current_animation)
+        #self.elapsed_time += kwargs["time"]
+        #if(self.elapsed_time//images_fps>0):
+        self.elapsed_time = 0
+        self.frame = self.frame + 1 if self.frame < len(self.current_animation) - 1 else 0
+        if self.frame == 0 and self.attacking:
+            self.attacking = False
+            self.current_animation = self.STANDING
+        if self.frame == 0 and self.is_defeated:
+            self.remove(self.containers)
         self.x += self.speed
 
     def get_animation(self):
@@ -96,11 +98,12 @@ class SwordMan(Sprite):
         self.image = self.image if self.right == False else pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect()
         self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.y = self.y - self.image.get_height()
 
-    def update_player_pos(self, player_x: int = -1, player_y: int = -1):
+    def update_player_pos(self, player_x: int = -1, player_y: int = -1, player_width: int = 0):
         self.player_x = player_x
         self.player_y = player_y
+        self.player_width = player_width
 
     def defeated(self):
         self.current_animation = self.DEFEATED
@@ -108,19 +111,25 @@ class SwordMan(Sprite):
         self.speed = 0
 
     def move_close_to_player(self):
-        attacking_space = 33 if not self.right else -33
         print(f"enemy x: {self.x}")
-        print(f"attacking enemy: {attacking_space}")
-        self.right = self.x - attacking_space + self.rect.x < self.player_x
-        if self.x - attacking_space >= self.player_x and self.current_animation != self.RUNNING_LEFT:
+        self.right = self.x < self.player_x
+        self.speed = -4 if not self.right else 4
+        if self.current_animation != self.RUNNING_LEFT and not self.attacking:
             self.current_animation = self.RUNNING_LEFT
             self.frame = 0
-            self.speed = -1 if not self.right else 1
-        elif not self.x - attacking_space >= self.player_x and self.current_animation == self.RUNNING_LEFT:
-            self.speed = 0
-            self.frame = 0
-            self.current_animation = self.STANDING
-        elif not self.x - attacking_space >= self.player_x and self.current_animation == self.STANDING:
+
+    def should_attack_player(self):
+        attacking_space = 32 if self.right else -32
+        attack = self.x + attacking_space if self.right else -attacking_space
+        if self.attacking:
+            return
+        if(not self.right and self.x + attacking_space <= self.player_x + self.player_width):
             self.speed = 0
             self.frame = 0
             self.current_animation = self.ATTACKING
+            self.attacking = True
+        elif(self.right and self.x + self.image.get_width() + attacking_space >= self.player_x):
+            self.speed = 0
+            self.frame = 0
+            self.current_animation = self.ATTACKING
+            self.attacking = True

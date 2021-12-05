@@ -48,12 +48,12 @@ class Luffy(Sprite):
         {"x": 518, "y": 2105, "width": 30, "height": 43},
     ]
 
-    def __init__(self):
+    def __init__(self, screen_height, screen_width):
         Sprite.__init__(self, self.containers)
-        self.images = pygame.image.load(resource_path("Luffy.gif")).convert_alpha()
+        self.images = pygame.image.load(resource_path("Luffy.gif")).convert()
         self.current_animation = self.STANDING
         self.attacking = False
-        self.x, self.y = 0, 10
+        self.x, self.y = 0, screen_height
         self.left = False
         self.frame = 0
         self.elapsed_time = 0
@@ -65,12 +65,12 @@ class Luffy(Sprite):
         self.get_animation()
         images_fps = 1000/len(self.current_animation)
         self.elapsed_time += kwargs["time"]
-        if(self.elapsed_time//images_fps>0):
-            self.elapsed_time = 0
-            self.frame = self.frame + 1 if self.frame < len(self.current_animation) - 1 else 0
-            if self.frame == 0 and self.attacking:
-                self.attacking = False
-                self.current_animation = self.STANDING
+        #if(self.elapsed_time//images_fps>0):
+        self.elapsed_time = 0
+        self.frame = self.frame + 1 if self.frame < len(self.current_animation) - 1 else 0
+        if self.frame == 0 and self.attacking:
+            self.attacking = False
+            self.current_animation = self.STANDING
         self.x += self.speed
         print(f"current x: {self.x}")
 
@@ -89,7 +89,7 @@ class Luffy(Sprite):
             self.rect.x = self.x + self.fixed_width - self.current_animation[self.frame]["width"]
         else:
             self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.y = self.y - self.image.get_height()
 
     def running_right(self):
         self.attacking = False
@@ -97,7 +97,7 @@ class Luffy(Sprite):
         self.frame = 0
         self.left = False
         self.current_animation = self.RUNNING_RIGHT
-        self.speed = 8
+        self.speed = 15
 
     def running_left(self):
         self.attacking = False
@@ -105,7 +105,7 @@ class Luffy(Sprite):
         self.frame = 0
         self.left = True
         self.current_animation = self.RUNNING_RIGHT
-        self.speed = -8
+        self.speed = -15
 
     def standing(self):
         self.frame = 0
